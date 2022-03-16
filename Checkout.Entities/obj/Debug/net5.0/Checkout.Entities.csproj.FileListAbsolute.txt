@@ -1,0 +1,11 @@
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.GeneratedMSBuildEditorConfig.editorconfig
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.AssemblyInfoInputs.cache
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.AssemblyInfo.cs
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.csproj.CoreCompileInputs.cache
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\bin\Debug\net5.0\Checkout.Entities.deps.json
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\bin\Debug\net5.0\Checkout.Entities.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\bin\Debug\net5.0\ref\Checkout.Entities.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\bin\Debug\net5.0\Checkout.Entities.pdb
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\ref\Checkout.Entities.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.Entities\obj\Debug\net5.0\Checkout.Entities.pdb
