@@ -1,0 +1,15 @@
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.csproj.AssemblyReference.cache
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.GeneratedMSBuildEditorConfig.editorconfig
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.AssemblyInfoInputs.cache
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.AssemblyInfo.cs
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.csproj.CoreCompileInputs.cache
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\Checkout.UnitOfWork.deps.json
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\Checkout.UnitOfWork.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\ref\Checkout.UnitOfWork.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\Checkout.UnitOfWork.pdb
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\Checkout.Entities.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\bin\Debug\net5.0\Checkout.Entities.pdb
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.csproj.CopyComplete
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\ref\Checkout.UnitOfWork.dll
+C:\infodation\CheckOut\CheckoutDemo\Checkout.UnitOfWork\obj\Debug\net5.0\Checkout.UnitOfWork.pdb
