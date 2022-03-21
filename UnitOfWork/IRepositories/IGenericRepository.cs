@@ -14,6 +14,7 @@ namespace Checkout.UnitOfWork.IRepositories
         void Add(T entity);
         Task UpdateAsync(T entity);
         Task<bool> RemoveAsync(Guid id);
-        bool Remove(Guid id);        
+        bool Remove(Guid id);
+        bool IsExist(Guid id);
     }
 }

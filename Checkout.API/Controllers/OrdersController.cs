@@ -1,4 +1,6 @@
-﻿using Checkout.API.DTOs;
+﻿using AutoMapper;
+using Checkout.API.DTOs;
+using Checkout.API.Filters;
 using Checkout.API.Manager.Interfaces;
 using Checkout.Entities.Models;
 using Checkout.UnitOfWork.Configurations;
@@ -14,97 +16,61 @@ namespace Checkout.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
-    {
-        private readonly ICheckoutUnitOfWork context;
-        private IOrdersManager ordersManager;
-        public OrdersController(ICheckoutUnitOfWork context, IOrdersManager ordersManager)
-        {
-            this.context = context;
-            this.ordersManager = ordersManager;
+    {        
+        private readonly IOrdersManager _ordersManager;
+        private readonly IMapper mapper;
+        public OrdersController(IOrdersManager ordersManager, IMapper mapper)
+        {            
+            _ordersManager = ordersManager;
+            this.mapper = mapper;
         }
+
+        //GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            var orders = await context.Order.GetAllAsync();
-            return orders.ToList();
+            return await _ordersManager.GetOrders();            
         }
 
-        // GET: api/Courses/5
+        // GET: api/Orders/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(Guid id)
         {
-            var order = await context.Order.GetAsync(id);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return order;
+            return await _ordersManager.GetOrder(id);
         }
 
-        // PUT: api/Courses/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(Guid id, Order order)
+        // PUT: api/Orders/{id}/cards        
+        [HttpPut]
+        [Route("{id}/cards")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> PutOrderDetailInOrder(Guid id, [FromBody] CardDto card)
+        {            
+            return await _ordersManager.PutNewProductToOrder(id, card);
+        }
+
+        //DELETE: api/Orders/{Order id}/products/{product id}
+        [HttpDelete]
+        [Route("{id}/products/{ProductId}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> DeleteOrderDetailInOrder(Guid id, Guid ProductId)
         {
-            if (id != order.Id)
-            {
-                return BadRequest();
-            }
-
-            await context.Order.UpdateAsync(order);
-
-            try
-            {
-                await context.SaveChangeAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _ordersManager.DeleteProductInOrder(id, ProductId);
         }
 
-        // POST: api/Courses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Orders/checkout        
         [HttpPost]
-        [Route("checkout/products")]
-        public async Task<ActionResult<Order>> PostOrder([FromBody] List<CartDto> ListCarts)
-        {
-            return await ordersManager.CreateNewOrder(ListCarts);            
+        [Route("checkout")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<ActionResult<Order>> PostOrder([FromBody] List<CardDto> ListCarts)
+        {            
+            return await _ordersManager.CreateNewOrder(ListCarts);            
         }
 
-        // DELETE: api/Courses/5
+        // DELETE: api/Orders/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            var order = await context.Order.GetAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            context.Order.Remove(order.Id);
-            await context.SaveChangeAsync();
-
-            return NoContent();
-        }
-
-        private bool OrderExists(Guid id)
-        {
-            var order = context.Order.GetAsync(id);
-            if (order == null)
-                return false;
-            return true;
-        }
+            return await _ordersManager.DeleteOrder(id);
+        }       
     }
 }

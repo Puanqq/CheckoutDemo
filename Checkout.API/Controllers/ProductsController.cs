@@ -1,4 +1,7 @@
-﻿using Checkout.Entities.Models;
+﻿using AutoMapper;
+using Checkout.API.DTOs;
+using Checkout.API.Filters;
+using Checkout.Entities.Models;
 using Checkout.UnitOfWork.Configurations;
 using Checkout.UnitOfWork.IRepositories;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +17,17 @@ namespace Checkout.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ICheckoutUnitOfWork context;
-        public ProductsController(ICheckoutUnitOfWork context) 
+        private readonly ICheckoutUnitOfWork _context;
+        private readonly IMapper mapper;
+        public ProductsController(ICheckoutUnitOfWork context, IMapper mapper) 
         {
-            this.context = context;
+            _context = context;
+            this.mapper = mapper;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await context.Product.GetAllAsync();
+            var products = await _context.Product.GetAllAsync();
             return products.ToList();
         }
 
@@ -30,7 +35,7 @@ namespace Checkout.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(Guid id)
         {
-            var course = await context.Product.GetAsync(id);
+            var course = await _context.Product.GetAsync(id);
 
             if (course == null)
             {
@@ -43,18 +48,19 @@ namespace Checkout.API.Controllers
         // PUT: api/Courses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(Guid id, Product product)
+        public async Task<IActionResult> PutProduct(Guid id, ProductDto product)
         {
             if (id != product.Id)
             {
                 return BadRequest();
             }
 
-            await context.Product.UpdateAsync(product);
+            Product productResult = mapper.Map<Product>(product);
+            await _context.Product.UpdateAsync(productResult);
 
             try
             {
-                await context.SaveChangeAsync();
+                await _context.SaveChangeAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -74,10 +80,12 @@ namespace Checkout.API.Controllers
         // POST: api/Courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<ActionResult<Product>> PostProduct(ProductDto product)
         {
-            context.Product.Add(product);            
-            await context.SaveChangeAsync();                        
+            Product productResult = mapper.Map<Product>(product);
+            _context.Product.Add(productResult);                            
+            await _context.SaveChangeAsync();                        
 
             return CreatedAtAction("GetProduct", new { id = product.Id }, product);
         }
@@ -86,21 +94,21 @@ namespace Checkout.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            var product = await context.Product.GetAsync(id);
+            var product = await _context.Product.GetAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            context.Product.Remove(product.Id);
-            await context.SaveChangeAsync();
+            _context.Product.Remove(product.Id);
+            await _context.SaveChangeAsync();
 
             return NoContent();
         }
 
         private bool ProductExists(Guid id)
         {
-            var product = context.Product.GetAsync(id);
+            var product = _context.Product.GetAsync(id);
             if (product == null)
                 return false;
             return true;

@@ -65,5 +65,12 @@ namespace Checkout.UnitOfWork.Repositories
         {
             return Task.Run(() => dbSet.Update(entity));
         }
+        public virtual bool IsExist(Guid id)
+        {
+            var t = dbSet.Find(id);
+            if (t is null)
+                return false;
+            return true;
+        }
     }
 }

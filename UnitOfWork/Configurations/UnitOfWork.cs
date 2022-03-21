@@ -1,5 +1,6 @@
 ﻿using Checkout.UnitOfWork.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace Checkout.UnitOfWork.Configurations
 {
     public abstract class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     {
+        protected DatabaseFacade database;
         protected readonly TContext context;
         public UnitOfWork(TContext context)
         {
-            this.context = context;
+            this.context = context;           
+            database = context.Database;
         }   
         public void Dispose()
         {
@@ -31,5 +34,6 @@ namespace Checkout.UnitOfWork.Configurations
                 return Task.FromResult(0);
             }
         }
+        public DatabaseFacade Database { get => database; }
     }
 }

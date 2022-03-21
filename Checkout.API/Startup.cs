@@ -1,5 +1,11 @@
+using AutoMapper;
+using Checkout.API.Backgrounds;
+using Checkout.API.Backgrounds.Interfaces;
+using Checkout.API.Filters;
 using Checkout.API.Manager;
 using Checkout.API.Manager.Interfaces;
+using Checkout.API.Mappings;
+using Checkout.API.Middlewares;
 using Checkout.Entities.Models;
 using Checkout.UnitOfWork.Configurations;
 using Checkout.UnitOfWork.IRepositories;
@@ -17,6 +23,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Checkout.API
@@ -34,7 +41,9 @@ namespace Checkout.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve); 
+
             services.AddDbContext<CheckoutDemoContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
@@ -43,7 +52,13 @@ namespace Checkout.API
             });
             
             services.AddTransient<IOrdersManager, OrdersManager>();
-            services.AddScoped<ICheckoutUnitOfWork, CheckoutUnitOfWork>();            
+            services.AddScoped<ICheckoutUnitOfWork, CheckoutUnitOfWork>();
+            services.AddScoped<ValidationFilterAttribute>();
+
+            services.AddSingleton<IWorker, Worker>();            
+
+            //Config automapper            
+            services.AddAutoMapper(typeof(MappingProfile));            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +74,8 @@ namespace Checkout.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseAuthorization();
 

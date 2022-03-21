@@ -6,9 +6,10 @@ using System.Collections.Generic;
 namespace Checkout.Entities.Models
 {
     public partial class Order
-    {
+    {        
         public Guid Id { get; set; }
         public double? Total { get; set; }
-        public DateTime? CreateAt { get; set; }        
+        public DateTime? CreateAt { get; set; }            
+        public IEnumerable<OrderDetail> Details { get; set; }
     }
 }

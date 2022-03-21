@@ -42,7 +42,7 @@ namespace Checkout.Entities.Models
 
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
-                    .HasColumnName("Created_at");                
+                    .HasColumnName("Created_at");                                 
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
@@ -66,6 +66,11 @@ namespace Checkout.Entities.Models
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                /*entity.HasOne(o => o.Order)
+                    .WithMany(g => g.OrderDetails)
+                    .HasForeignKey(k => k.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);*/
             });
 
             modelBuilder.Entity<Product>(entity =>
