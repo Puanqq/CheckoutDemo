@@ -36,12 +36,12 @@ namespace Checkout.UnitOfWork.Repositories
             return await dbSet.ToListAsync();
         }
 
-        public virtual async Task<T> GetAsync(Guid id)
+        public virtual async Task<T> GetAsync(object id)
         {
             return await dbSet.FindAsync(id);
         }        
 
-        public virtual async Task<bool> RemoveAsync(Guid id)
+        public virtual async Task<bool> RemoveAsync(object id)
         {
             var entity = await GetAsync(id);
             if (entity is null)
@@ -50,7 +50,7 @@ namespace Checkout.UnitOfWork.Repositories
             return true;
         }
 
-        public virtual bool Remove(Guid id)
+        public virtual bool Remove(object id)
         {
             var entity = dbSet.Find(id);
             if (entity == null)
@@ -65,7 +65,7 @@ namespace Checkout.UnitOfWork.Repositories
         {
             return Task.Run(() => dbSet.Update(entity));
         }
-        public virtual bool IsExist(Guid id)
+        public virtual bool IsExist(object id)
         {
             var t = dbSet.Find(id);
             if (t is null)

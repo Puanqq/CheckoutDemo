@@ -17,11 +17,13 @@ namespace Checkout.API.Manager
 {
     public class OrdersManager : IOrdersManager
     {
-        private readonly ICheckoutUnitOfWork _context;        
-        
-        public OrdersManager(ICheckoutUnitOfWork context)
+        private readonly ICheckoutUnitOfWork _context;
+        private readonly IMapper _mapper;
+
+        public OrdersManager(ICheckoutUnitOfWork context, IMapper mapper)
         {
-            _context = context;                      
+            _context = context;
+            _mapper = mapper;
         }
         public async Task<ActionResult<Order>> CreateNewOrder(List<CardDto> ListCart)
         {
@@ -67,8 +69,7 @@ namespace Checkout.API.Manager
                 foreach (var cart in ListCart)
                 {                    
                     _context.OrderDetail.Add(new OrderDetail
-                    {
-                        Id = Guid.NewGuid(),
+                    {                        
                         OrderId = order.Id,
                         ProductId = cart.ProductId,
                         Quantity = cart.Quantity,
@@ -104,7 +105,7 @@ namespace Checkout.API.Manager
             {
                 order.Details = orderDetails.Where(o => o.OrderId == order.Id).ToList();
             }
-            return orders.ToList();                           
+            return orders.ToList();
         }
         public async Task<ActionResult<Order>> GetOrder(Guid id)
         {
@@ -146,8 +147,7 @@ namespace Checkout.API.Manager
                 if (orderDetailExist is null)
                 {
                     _context.OrderDetail.Add(new OrderDetail
-                    {
-                        Id = Guid.NewGuid(),
+                    {                        
                         ProductId = card.ProductId,
                         OrderId = id,
                         Quantity = card.Quantity,
@@ -167,7 +167,7 @@ namespace Checkout.API.Manager
                     throw new Exception($"Update Order detail is fail: {ex.Message}");
                 }
 
-                order.Total += product.Price;
+                order.Total += product.Price * card.Quantity;
                 try
                 {
                     await _context.SaveChangeAsync();

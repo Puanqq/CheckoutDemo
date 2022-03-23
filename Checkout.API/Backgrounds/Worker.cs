@@ -15,8 +15,8 @@ namespace Checkout.API.Backgrounds
             {
                 Interlocked.Increment(ref number);
                 Log.Information($"Worker print number is {number}");
-                await Task.Delay(1000 * 10);
+                await Task.Delay(1000 * 60);
             }
         }
     }
-}s
+}

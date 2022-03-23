@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Checkout.API.DTOs
 {
-    public class OrderDto
+    public class OrderResponseDto
     {
         public Guid Id { get; set; }
         public double Total { get; set; }
         public DateTime CreateAt { get; set; }
-        public List<OrderDetailDto>? OrderDetails { get; set; }
+        public ICollection<OrderDetailResponseDto>? Details { get; set; }
     }
 }

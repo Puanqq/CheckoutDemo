@@ -9,12 +9,12 @@ namespace Checkout.UnitOfWork.IRepositories
     public interface IGenericRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
-        Task<T> GetAsync(Guid id);
+        Task<T> GetAsync(object id);
         Task CreateAsync(T entity);
         void Add(T entity);
         Task UpdateAsync(T entity);
-        Task<bool> RemoveAsync(Guid id);
-        bool Remove(Guid id);
-        bool IsExist(Guid id);
+        Task<bool> RemoveAsync(object id);
+        bool Remove(object id);
+        bool IsExist(object id);
     }
 }
