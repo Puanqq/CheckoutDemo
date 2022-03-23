@@ -1,15 +1,11 @@
-﻿using AutoMapper;
-using Checkout.API.DTOs;
-using Checkout.API.Filters;
-using Checkout.Entities.Models;
-using Checkout.UnitOfWork.Configurations;
-using Checkout.UnitOfWork.IRepositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Checkout.Entities.Models;
 
 namespace Checkout.API.Controllers
 {
@@ -17,50 +13,49 @@ namespace Checkout.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ICheckoutUnitOfWork _context;
-        private readonly IMapper mapper;
-        public ProductsController(ICheckoutUnitOfWork context, IMapper mapper) 
+        private readonly CheckoutDemoContext _context;
+
+        public ProductsController(CheckoutDemoContext context)
         {
             _context = context;
-            this.mapper = mapper;
         }
+
+        // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _context.Product.GetAllAsync();
-            return products.ToList();
+            return await _context.Products.ToListAsync();
         }
 
-        // GET: api/Courses/5
+        // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(Guid id)
         {
-            var course = await _context.Product.GetAsync(id);
+            var product = await _context.Products.FindAsync(id);
 
-            if (course == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
-            return course;
+            return product;
         }
 
-        // PUT: api/Courses/5
+        // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(Guid id, ProductDto product)
+        public async Task<IActionResult> PutProduct(Guid id, Product product)
         {
             if (id != product.Id)
             {
                 return BadRequest();
             }
 
-            Product productResult = mapper.Map<Product>(product);
-            await _context.Product.UpdateAsync(productResult);
+            _context.Entry(product).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangeAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,41 +72,36 @@ namespace Checkout.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Courses
+        // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<ActionResult<Product>> PostProduct(ProductDto product)
+        public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            Product productResult = mapper.Map<Product>(product);
-            _context.Product.Add(productResult);                            
-            await _context.SaveChangeAsync();                        
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProduct", new { id = product.Id }, product);
         }
 
-        // DELETE: api/Courses/5
+        // DELETE: api/Products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            var product = await _context.Product.GetAsync(id);
+            var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Product.Remove(product.Id);
-            await _context.SaveChangeAsync();
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ProductExists(Guid id)
         {
-            var product = _context.Product.GetAsync(id);
-            if (product == null)
-                return false;
-            return true;
+            return _context.Products.Any(e => e.Id == id);
         }
     }
 }
