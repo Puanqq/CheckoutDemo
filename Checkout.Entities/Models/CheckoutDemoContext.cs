@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Checkout.Entities.Models
 {
-    public partial class CheckoutDemoContext : DbContext
+    public partial class CheckoutDemoContext : IdentityDbContext
     {
         public CheckoutDemoContext()
         {
@@ -21,7 +22,7 @@ namespace Checkout.Entities.Models
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
@@ -65,12 +66,7 @@ namespace Checkout.Entities.Models
                 entity.Property(e => e.ProductId)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                /*entity.HasOne(o => o.Order)
-                    .WithMany(g => g.OrderDetails)
-                    .HasForeignKey(k => k.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade);*/
+                    .IsUnicode(false);                
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -89,6 +85,6 @@ namespace Checkout.Entities.Models
             OnModelCreatingPartial(modelBuilder);
         }
 
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);*/
     }
 }

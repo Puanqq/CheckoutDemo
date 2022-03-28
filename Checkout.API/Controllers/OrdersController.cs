@@ -4,6 +4,7 @@ using Checkout.API.Filters;
 using Checkout.API.Manager.Interfaces;
 using Checkout.Entities.Models;
 using Checkout.UnitOfWork.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,6 +16,7 @@ namespace Checkout.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrdersController : ControllerBase
     {        
         private readonly IOrdersManager _ordersManager;
