@@ -1,5 +1,6 @@
 ﻿using Checkout.API.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -36,6 +37,8 @@ namespace Checkout.API.Middlewares
                         // not found error
                         response.StatusCode = (int)HttpStatusCode.NotFound;
                         break;
+                    case DbUpdateConcurrencyException e:
+                        throw new Exception("Update to DB is fail");                        
                     default:
                         // unhandled error
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;

@@ -21,7 +21,7 @@ namespace Checkout.API
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
-            .WriteTo.Console(/*outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {CorrelationId} {Level:u3}] {Message:lj}{NewLine}{Exception}"*/)
+            .WriteTo.Console()
             .WriteTo.File(
                 new JsonFormatter(),
                 $"./App_Data/log_{DateTime.UtcNow.ToString("dd-MM-yyyy")}.log",

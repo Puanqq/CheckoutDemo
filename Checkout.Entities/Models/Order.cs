@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 #nullable disable
 
@@ -12,9 +13,9 @@ namespace Checkout.Entities.Models
             Details = new HashSet<OrderDetail>();
         }
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public double? Total { get; set; }
-        public DateTime? CreateAt { get; set; }            
+        public DateTime? CreateAt { get; set; }                     
         public ICollection<OrderDetail> Details { get; set; }
     }
 }

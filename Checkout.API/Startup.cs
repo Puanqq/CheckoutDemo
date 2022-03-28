@@ -1,4 +1,3 @@
-using AutoMapper;
 using Checkout.API.Backgrounds;
 using Checkout.API.Backgrounds.Interfaces;
 using Checkout.API.Configuration;
@@ -19,9 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -41,12 +37,13 @@ namespace Checkout.API
         {
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
 
-            services.AddControllers().AddJsonOptions(x =>
+            services.AddControllers().AddJsonOptions(x =>                
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve); 
 
             services.AddDbContext<CheckoutDemoContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            //Config Authentication
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -70,10 +67,17 @@ namespace Checkout.API
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                         .AddEntityFrameworkStores<CheckoutDemoContext>();
 
+            //Config Object Management
             services.AddTransient<IOrdersManager, OrdersManager>();
+            services.AddTransient<IProductManager, ProductManager>();
+
+            //Config Unit of work
             services.AddScoped<ICheckoutUnitOfWork, CheckoutUnitOfWork>();
+
+            //Config Fillter Attribute
             services.AddScoped<ValidationFilterAttribute>();
 
+            //Config backfround service
             services.AddSingleton<IWorker, Worker>();            
             
             //Config automapper            

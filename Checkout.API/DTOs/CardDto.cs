@@ -6,7 +6,9 @@ namespace Checkout.API.DTOs
 {
     public class CardDto
     {
-        public Guid ProductId { get; set; }
+        [Required]
+        public int ProductId { get; set; }
+        [Required]
         [Range(1,99)]
         public int Quantity { get; set; }
     }

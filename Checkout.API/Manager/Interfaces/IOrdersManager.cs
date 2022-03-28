@@ -9,11 +9,11 @@ namespace Checkout.API.Manager.Interfaces
 {
     public interface IOrdersManager
     {
-        Task<ActionResult<IEnumerable<Order>>> GetOrders();
-        Task<ActionResult<Order>> GetOrder(Guid id);
-        Task<ActionResult<Order>> CreateNewOrder(List<CardDto> ListCart);        
-        Task<IActionResult> PutNewProductToOrder(Guid id, CardDto card);
-        Task<IActionResult> DeleteProductInOrder(Guid id, Guid ProductId);
-        Task<IActionResult> DeleteOrder(Guid id);
+        Task<ActionResult<IEnumerable<OrderDto>>> GetOrders();
+        Task<ActionResult<OrderDto>> GetOrder(int id);
+        Task<ActionResult<OrderDto>> CreateNewOrder(List<CardDto> ListCart);        
+        Task<IActionResult> PutNewProductToOrder(int id, CardDto card);
+        Task<IActionResult> DeleteProductInOrder(int id, int ProductId);
+        Task<IActionResult> DeleteOrder(int id);
     }
 }
