@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Checkout.Entities.Migrations
 {
     [DbContext(typeof(CheckoutDemoContext))]
-    [Migration("20220323083929_init")]
+    [Migration("20220324165615_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,9 +23,10 @@ namespace Checkout.Entities.Migrations
 
             modelBuilder.Entity("Checkout.Entities.Models.Order", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("CreateAt")
                         .HasColumnType("datetime2");
@@ -48,11 +49,11 @@ namespace Checkout.Entities.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
@@ -66,9 +67,10 @@ namespace Checkout.Entities.Migrations
 
             modelBuilder.Entity("Checkout.Entities.Models.Product", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");

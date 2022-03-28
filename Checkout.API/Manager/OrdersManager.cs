@@ -26,7 +26,7 @@ namespace Checkout.API.Manager
             _mapper = mapper;
             _context = context;
         }
-        public async Task<ActionResult<Order>> CreateNewOrder(List<CardDto> ListCart)
+        public async Task<ActionResult<OrderDto>> CreateNewOrder(List<CardDto> ListCart)
         {
             var transaction = _context.Database.BeginTransaction();            
             try
@@ -40,9 +40,10 @@ namespace Checkout.API.Manager
                 }
 
                 double total = 0;
+                var products = await _context.Products.ToListAsync();
                 foreach (var item in ListCart)
                 {
-                    var product = await _context.Products.FindAsync(item.ProductId);
+                    var product = products.Where(x => x.Id == item.ProductId).FirstOrDefault();
                     if (product == null)
                     {
                         Log.Warning($"Product with Id {product.Id} is not found");
@@ -51,21 +52,13 @@ namespace Checkout.API.Manager
                     total += (double)product.Price * item.Quantity;
                 }
                 var order = new Order
-                {
-                    Id = Guid.NewGuid(),
+                {                    
                     Total = total,
-                    CreateAt = DateTime.UtcNow
+                    CreateAt = DateTime.UtcNow                    
                 };
 
                 _context.Orders.Add(order);
-                try
-                {
-                    await _context.SaveChangesAsync();                    
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    throw new Exception("Create blank order is fail!");
-                }
+                await _context.SaveChangesAsync();
 
                 foreach (var cart in ListCart)
                 {                    
@@ -78,18 +71,11 @@ namespace Checkout.API.Manager
                     });
                 }
 
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    throw new Exception("Create order detail is fail!");
-                }
+                await _context.SaveChangesAsync();
 
                 transaction.Commit();
                 Log.Information("Create order is successful");
-                return order;
+                return _mapper.Map<OrderDto>(order);
             }
             catch (Exception ex)
             {
@@ -98,47 +84,58 @@ namespace Checkout.API.Manager
                 return new BadRequestResult();
             }                                   
         }
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders()
         {
-            /*var orders = await _context.Order.GetAllAsync();
-            var orderDetails = await _context.OrderDetail.GetAllAsync();
-            foreach (var order in orders)
-            {
-                order.Details = orderDetails.Where(o => o.OrderId == order.Id).ToList();
-            }
-            return orders.ToList();*/
-            var list = await _context.Orders.
-                Include(o => o.Details).ToListAsync();
-            return list;
-        }
-        public async Task<ActionResult<Order>> GetOrder(Guid id)
-        {
-            /*var order = await _context.Order.GetAsync(id);
-            if(order is null)
-            {
-                Log.Warning("Order is not exist");
-                return new NotFoundResult();                
-            }
-            var orderDetails = await _context.OrderDetail.GetAllAsync();
-            order.Details = orderDetails.Where(o => o.OrderId == order.Id).ToList();
+            var orders = await _context.Orders
+                .Include(o => o.Details)  
+                .Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    Total = (double)o.Total,
+                    CreateAt = (DateTime)o.CreateAt,
+                    DetailOder = (ICollection<OrderDetailDto>)o.Details.Select(x => new OrderDetailDto
+                    {
+                        OrderId = x.Id,
+                        CreatedAt = x.CreatedAt,
+                        Id = x.Id,
+                        ProductId = x.ProductId,
+                        Quantity = x.Quantity
+                    })
+                })
+                .ToListAsync();
 
-            Log.Information("Get Order is successfull");
-            return order;*/
-            return _context.Orders.Where(b => b.Id == id)
-                       .Include(b => b.Details)
-                       .FirstOrDefault();            
+            /*var orders2 = from order in _context.Orders
+                          join odetail in _context.OrderDetails on order.Id equals odetail.OrderId
+                          select new OrderDto
+                          {
+                              Id = order.Id,
+                              Total = (double)order.Total,
+                              CreateAt = (DateTime)order.CreateAt,
+                              DetailOder = (ICollection<OrderDetailDto>)order.Details.Select(x => new OrderDetailDto
+                              {
+                                  OrderId = x.Id,
+                                  CreatedAt = x.CreatedAt,
+                                  Id = x.Id,
+                                  ProductId = x.ProductId,
+                                  Quantity = x.Quantity
+                              })
+                          };*/
+
+            return orders;
         }
-        public async Task<IActionResult> PutNewProductToOrder(Guid id, CardDto card)
+        public async Task<ActionResult<OrderDto>> GetOrder(int id)
+        {            
+            var order = await _context.Orders
+                                    .Where(b => b.Id == id)
+                                    .Include(b => b.Details)                                    
+                                    .FirstOrDefaultAsync();
+            return _mapper.Map<OrderDto>(order);            
+        }
+        public async Task<IActionResult> PutNewProductToOrder(int id, CardDto card)
         {
             var transaction = _context.Database.BeginTransaction();            
             try
-            {                
-                if (!OrderIsExist(id))
-                {
-                    Log.Warning("Order is not exist");
-                    return new NotFoundResult();
-                }
-
+            {                                
                 var product = await _context.Products.FindAsync(card.ProductId);
                 if (product == null)
                 {
@@ -148,8 +145,15 @@ namespace Checkout.API.Manager
 
                 transaction.CreateSavepoint("BeforUpdateOrder");
 
-                var order = await _context.Orders.FindAsync(id);                
-                var orderDetailExist = _context.OrderDetails.FirstOrDefault(o => o.OrderId == id && o.ProductId == card.ProductId);
+                var order = await _context.Orders.Where(b => b.Id == id).Include(b => b.Details).FirstOrDefaultAsync();
+
+                if (order == null)
+                {
+                    Log.Warning("Order is not exist");
+                    return new NotFoundResult();
+                }
+
+                var orderDetailExist = order.Details.FirstOrDefault(x => x.OrderId == card.ProductId);
                 if (orderDetailExist is null)
                 {
                     _context.OrderDetails.Add(new OrderDetail
@@ -163,28 +167,12 @@ namespace Checkout.API.Manager
                 else
                 {
                     orderDetailExist.Quantity += card.Quantity;
-                }
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {                    
-                    throw new Exception($"Update Order detail is fail: {ex.Message}");
-                }
-
+                }                
                 order.Total += product.Price * card.Quantity;
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex )
-                {
-                    throw new Exception($"Update Order is fail: {ex.Message}");
-                }
-
+                
+                await _context.SaveChangesAsync();
                 transaction.Commit();
-                return new NoContentResult();
+                return new OkResult();
 
             }
             catch (Exception ex)
@@ -194,17 +182,11 @@ namespace Checkout.API.Manager
                 return new BadRequestResult();
             }                        
         }
-        public async Task<IActionResult> DeleteProductInOrder(Guid id, Guid productId)
+        public async Task<IActionResult> DeleteProductInOrder(int id, int productId)
         {
             var transaction = _context.Database.BeginTransaction();
             try
-            {
-                if (!OrderIsExist(id))
-                {
-                    Log.Warning("This order isn't exist!");
-                    return new NotFoundResult();
-                }
-
+            {                
                 var product = await _context.Products.FindAsync(productId);
                 if (product == null)
                 {
@@ -213,8 +195,15 @@ namespace Checkout.API.Manager
                 }
 
                 transaction.CreateSavepoint("BeforUpdateOrder");
-                var order = await _context.Orders.FindAsync(id);                
-                var orderDetailExist = _context.OrderDetails.FirstOrDefault(o => o.OrderId == id && o.ProductId == productId);
+                var order = await _context.Orders.Where(b => b.Id == id).Include(b => b.Details).FirstOrDefaultAsync();
+
+                if (order == null)
+                {
+                    Log.Warning("This order isn't exist!");
+                    return new NotFoundResult();
+                }
+
+                var orderDetailExist = order.Details.FirstOrDefault(x => x.OrderId == productId);
                 if (orderDetailExist is null)
                 {
                     Log.Warning("In order isn't have this product to delete!");
@@ -231,24 +220,8 @@ namespace Checkout.API.Manager
                         orderDetailExist.Quantity -= 1;
                     }
                 }
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {                    
-                    throw new Exception($"Update Order detail is fail: {ex.Message}");
-                }
 
-                order.Total -= product.Price;
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    throw new Exception($"Update Order is fail: {ex.Message}");
-                }
+                await _context.SaveChangesAsync();
 
                 transaction.Commit();
                 return new NoContentResult();
@@ -260,56 +233,23 @@ namespace Checkout.API.Manager
                 return new BadRequestResult();
             }
         }
-        public async Task<IActionResult> DeleteOrder(Guid id)
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            var transaction = _context.Database.BeginTransaction();
-
-            try
+            if (!OrderIsExist(id))
             {
-                if (!OrderIsExist(id))
-                {
-                    Log.Warning("This order isn't exist!");
-                    return new NotFoundResult();
-                }
-
-                transaction.CreateSavepoint("BeforDelete");
-                var order = await _context.Orders.FindAsync(id);                
-                var orderDetailsMustRemove = _context.OrderDetails.Where(o => o.OrderId == id).ToList();
-                foreach (var orderDetail in orderDetailsMustRemove)
-                {
-                    _context.OrderDetails.Remove(orderDetail);
-                }
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {                    
-                    throw new Exception($"Delete Detail order is fail: {ex.Message}");
-                }
-
-                _context.Orders.Remove(order);
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {                    
-                    throw new Exception($"Delete Order is fail : {ex.Message}");
-                }
-
-                transaction.Commit();
-                Log.Information("Delete order is successful!");
-                return new NoContentResult();
+                Log.Warning("This order isn't exist!");
+                return new NotFoundResult();
             }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-                transaction.ReleaseSavepoint("BeforDelete");
-                return new BadRequestResult();
-            }
+            
+            var order = await _context.Orders.Where(b => b.Id == id).Include(b => b.Details).FirstOrDefaultAsync();
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+            
+            Log.Information("Delete order is successful!");
+            return new NoContentResult();
         }
-        private bool OrderIsExist(Guid id)
+        private bool OrderIsExist(int id)
         {
             return _context.Orders.Any(x => x.Id == id);
         }

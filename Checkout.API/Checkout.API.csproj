@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Manager\OrdersManager.cs~RF61698.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />
@@ -28,6 +32,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Checkout.Entities\Checkout.Entities.csproj" />
     <ProjectReference Include="..\UnitOfWork\UnitOfWork.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="App_Data\" />
   </ItemGroup>
 
 </Project>
